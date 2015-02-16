@@ -108,5 +108,5 @@ func main() {
 	flag.Parse()
 
 	log.Printf("Starting server on port %v", *port)
-	http.ListenAndServe(":"+*port, routes)
+	log.Fatal(http.ListenAndServe(":"+*port, routes))
 }
