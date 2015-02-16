@@ -52,11 +52,7 @@ go run main.go
 meanwhile....
 
 ```
-curl -X POST -d '{"Status": 200, "Body": "foo"}' localhost:8080/r/1
-curl -X POST -d '{"Status": 200, "Body": "bar"}' localhost:8080/r/1
-curl -X POST -d '{"Status": 200, "Body": "baz"}' localhost:8080/r/1
+for body in {1..5}; do curl -X POST -d '{"Status": 200, "Body": "hi"}' localhost:8080/r/1; echo "\n"; done;
 
-curl localhost:8080/p/1
-curl localhost:8080/p/1
-curl localhost:8080/p/1
+for num in {1..5}; do curl localhost:8080/p/1/; done;
 ```
