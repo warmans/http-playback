@@ -41,21 +41,22 @@ func (s *SessionStore) Enqueue(sessionName string, response Response) int {
 }
 
 //Dequeue a response from a named session (FIFO)
-func (s *SessionStore) Dequeue(sessionName string) Response {
+func (s *SessionStore) Dequeue(sessionName string) (Response, bool) {
+
+	var itm Response
 
 	if s.sessions != nil {
 		s.lock.Lock()
 		//check the session exists and has responses
 		if _, ok := s.sessions[sessionName]; ok && len(s.sessions[sessionName]) > 0 {
-			var itm Response
 			itm, s.sessions[sessionName] = s.sessions[sessionName][0], s.sessions[sessionName][1:]
 			s.lock.Unlock()
-			return itm
+			return itm, false
 		}
 		s.lock.Unlock()
 	}
 
-	return Response{}
+	return Response{}, true
 }
 
 func main() {
@@ -77,15 +78,16 @@ func main() {
 			return
 		}
 
-		log.Printf("added response to %v", vars["sess"])
 		fmt.Fprintf(w, fmt.Sprintf("%v responses in session", sessions.Enqueue(vars["sess"], response)))
+
+		log.Printf("%v +1 response", vars["sess"])
 
 	}).Methods("POST")
 
 	//serve sessions
 	routes.HandleFunc("/p/{sess}/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		res := sessions.Dequeue(vars["sess"])
+		res, blank := sessions.Dequeue(vars["sess"])
 
 		//wait time
 		if res.Wait > 0 {
@@ -101,7 +103,11 @@ func main() {
 		//body
 		fmt.Fprint(w, res.Body)
 
-		log.Printf("returned response for %s", vars["sess"])
+		if blank {
+			log.Printf("%v is empty", vars["sess"])
+		} else {
+			log.Printf("%v -1 response", vars["sess"])
+		}
 	})
 
 	var port = flag.String("port", "8080", "port to listen on")

@@ -42,3 +42,21 @@ blank.
 
 Note that `/p/` will accept any HTTP method and any uri AFTER the session id.
 However the trailing slash after the session id is required.
+
+## Example
+
+```
+go run main.go
+```
+
+meanwhile....
+
+```
+curl -X POST -d '{"Status": 200, "Body": "foo"}' localhost:8080/r/1
+curl -X POST -d '{"Status": 200, "Body": "bar"}' localhost:8080/r/1
+curl -X POST -d '{"Status": 200, "Body": "baz"}' localhost:8080/r/1
+
+curl localhost:8080/p/1
+curl localhost:8080/p/1
+curl localhost:8080/p/1
+```
